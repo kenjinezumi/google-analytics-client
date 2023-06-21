@@ -1,0 +1,21 @@
+{
+  "name": "ga-analytics-client",
+  "version": "1.0.0",
+  "description": "Express app to query GA data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kenji Tsuchiya",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/identity": "^3.2.3",
+    "@azure/keyvault-secrets": "^4.7.0",
+    "@azure/storage-blob": "^12.14.0",
+    "@google-analytics/data": "^3.2.2",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "googleapis": "^118.0.0",
+    "winston": "^3.9.0"
+  }
+}
