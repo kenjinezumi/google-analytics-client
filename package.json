@@ -2,9 +2,11 @@
   "name": "ga-analytics-client",
   "version": "1.0.0",
   "description": "Express app to query GA data",
-  "main": "index.js",
+  "main": "src/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js"
+
   },
   "author": "Kenji Tsuchiya",
   "license": "ISC",

@@ -1,7 +1,7 @@
 // src/domain/analyticsFetcher.js
 
 const GoogleAnalytics = require("../infrastructure/googleAnalytics");
-const logger = require("../infrastructure/logger/winstonLogger");
+const logger = require("../infrastructure/logger");
 
 class AnalyticsFetcher {
   constructor(keyFilePath, viewId) {

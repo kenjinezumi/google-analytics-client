@@ -2,7 +2,7 @@
 
 const AnalyticsFetcher = require("./analyticsFetcher");
 const BlobUploader = require("./blobUploader");
-const logger = require("../infrastructure/logger/winstonLogger");
+const logger = require("../infrastructure/logger");
 
 class AnalyticsService {
   constructor(keyFilePath, viewId, accountName, containerName) {
