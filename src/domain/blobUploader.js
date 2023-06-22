@@ -1,7 +1,7 @@
 // src/domain/blobUploader.js
 
 const AzureBlobStorage = require("../infrastructure/azureBlobStorage");
-const logger = require("../infrastructure/logger/winstonLogger");
+const logger = require("../infrastructure/logger");
 
 class BlobUploader {
   constructor(accountName, containerName) {

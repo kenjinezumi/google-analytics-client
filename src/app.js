@@ -1,34 +1,24 @@
-// src/app.js
-
 const express = require("express");
-const { DefaultAzureCredential } = require("@azure/identity");
-const { SecretClient } = require("@azure/keyvault-secrets");
+const { BlobServiceClient } = require("@azure/storage-blob");
 const AnalyticsService = require("./domain/analyticsService");
-const logger = require("./infrastructure/logger/winstonLogger");
+const logger = require("./infrastructure/logger");
 
 const app = express();
 
-// Azure Key Vault configuration
-const keyVaultName = process.env.AZURE_KEYVAULT_NAME;
-const credential = new DefaultAzureCredential();
-const secretClient = new SecretClient(`https://${keyVaultName}.vault.azure.net`, credential);
-
 // Azure Blob Storage configuration
-const azureBlobStorageAccountName = process.env.AZURE_BLOB_STORAGE_ACCOUNT_NAME;
+const azureBlobStorageConnectionString = process.env.AZURE_BLOB_STORAGE_CONNECTION_STRING;
 const azureBlobStorageContainerName = process.env.AZURE_BLOB_STORAGE_CONTAINER_NAME;
 
+// Fetch Analytics Data Route
 app.get("/fetch-analytics-data", async (req, res) => {
   const { startDate, endDate } = req.query;
 
   try {
-    // Retrieve Google Analytics key file path from Azure Key Vault
-    const googleAnalyticsKeyFilePath = await secretClient.getSecret(process.env.GOOGLE_ANALYTICS_KEY_FILE_SECRET_NAME);
-
     // Initialize AnalyticsService
     const analyticsService = new AnalyticsService(
-      googleAnalyticsKeyFilePath.value,
+      process.env.GOOGLE_KEY_FILE, // Replace with the path or contents of your service account key file
       process.env.GOOGLE_ANALYTICS_VIEW_ID,
-      azureBlobStorageAccountName,
+      azureBlobStorageConnectionString,
       azureBlobStorageContainerName
     );
 
@@ -42,4 +32,10 @@ app.get("/fetch-analytics-data", async (req, res) => {
   }
 });
 
-module.exports = app;
+// Start the server
+const server = app.listen(0, () => {
+  const port = server.address().port;
+  console.log(`Server is running on port ${port}`);
+  console.log(`Open your web browser and navigate to http://localhost:${port} to access the server.`);
+
+});
