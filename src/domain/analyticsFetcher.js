@@ -4,14 +4,13 @@ const GoogleAnalytics = require("../infrastructure/googleAnalytics");
 const logger = require("../infrastructure/logger");
 
 class AnalyticsFetcher {
-  constructor(keyFilePath, viewId) {
-    this.googleAnalytics = new GoogleAnalytics(keyFilePath, viewId);
+  constructor(keyFilePath, propertyId) {
+    this.googleAnalytics = new GoogleAnalytics(keyFilePath, propertyId);
   }
 
   async fetchAnalyticsData(startDate, endDate) {
     try {
       const analyticsData = await this.googleAnalytics.fetchAnalyticsData(startDate, endDate);
-      logger.info(`Analytics data fetched for dates ${startDate} to ${endDate}`);
       return analyticsData;
     } catch (error) {
       logger.error("Error fetching analytics data:", error);

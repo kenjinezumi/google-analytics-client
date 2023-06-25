@@ -5,15 +5,14 @@ const BlobUploader = require("./blobUploader");
 const logger = require("../infrastructure/logger");
 
 class AnalyticsService {
-  constructor(keyFilePath, viewId, accountName, containerName) {
-    this.analyticsFetcher = new AnalyticsFetcher(keyFilePath, viewId);
+  constructor(keyFilePath, propertyId, accountName, containerName) {
+    this.analyticsFetcher = new AnalyticsFetcher(keyFilePath, propertyId);
     this.blobUploader = new BlobUploader(accountName, containerName);
   }
 
   async fetchAndStoreAnalyticsData(startDate, endDate) {
     try {
       this.validateDates(startDate, endDate);
-
       const analyticsData = await this.analyticsFetcher.fetchAnalyticsData(startDate, endDate);
       this.validateAnalyticsData(analyticsData);
 
