@@ -2,28 +2,66 @@ const express = require("express");
 const { BlobServiceClient } = require("@azure/storage-blob");
 const AnalyticsService = require("./domain/analyticsService");
 const logger = require("./infrastructure/logger");
+const fs = require('fs');
+
+require('dotenv').config();
 
 const app = express();
 
-// Azure Blob Storage configuration
-const azureBlobStorageConnectionString = process.env.AZURE_BLOB_STORAGE_CONNECTION_STRING;
-const azureBlobStorageContainerName = process.env.AZURE_BLOB_STORAGE_CONTAINER_NAME;
+
+// Log available API endpoints
+function logEndpoints(portAddress) {
+  const routes = [];
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      // Route layer
+      const route = middleware.route;
+      routes.push({
+        method: Object.keys(route.methods)[0].toUpperCase(),
+        path: route.path,
+      });
+    } else if (middleware.name === "router") {
+      // Router layer
+      middleware.handle.stack.forEach((handler) => {
+        const route = handler.route;
+        routes.push({
+          method: Object.keys(route.methods)[0].toUpperCase(),
+          path: route.path,
+        });
+      });
+    }
+  });
+
+  console.log("Available API endpoints:");
+  routes.forEach((route) => {
+    console.log(`${route.method} http://localhost:${portAddress}${route.path}`);
+  });
+}
 
 // Fetch Analytics Data Route
-app.get("/fetch-analytics-data", async (req, res) => {
-  const { startDate, endDate } = req.query;
+app.get("/fetch", async (req, res) => {
+  logger.info('Start of the get API to get GA data')
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(startDate.getDate() - 1);
+  
+  // Format start date as "YYYY-MM-DD"
+  const formattedStartDate = startDate.toISOString().split('T')[0];
+  
+  // Format today's date as "YYYY-MM-DD"
+  const formattedEndDate = today.toISOString().split('T')[0];
 
   try {
     // Initialize AnalyticsService
     const analyticsService = new AnalyticsService(
-      process.env.GOOGLE_KEY_FILE, // Replace with the path or contents of your service account key file
-      process.env.GOOGLE_ANALYTICS_VIEW_ID,
-      azureBlobStorageConnectionString,
-      azureBlobStorageContainerName
+      process.env.GOOGLE_ANALYTICS_KEY_FILE_SECRET_NAME,
+      process.env.GOOGLE_ANALYTICS_PROPERTY_ID,
+      process.env.AZURE_BLOB_STORAGE_ACCOUNT_NAME,
+      process.env.AZURE_BLOB_STORAGE_CONTAINER_NAME
     );
 
     // Fetch and store analytics data
-    await analyticsService.fetchAndStoreAnalyticsData(startDate, endDate);
+    await analyticsService.fetchAndStoreAnalyticsData(formattedStartDate, formattedEndDate);
 
     res.send("Analytics data fetched and stored successfully.");
   } catch (error) {
@@ -37,5 +75,11 @@ const server = app.listen(0, () => {
   const port = server.address().port;
   console.log(`Server is running on port ${port}`);
   console.log(`Open your web browser and navigate to http://localhost:${port} to access the server.`);
+  logEndpoints(port);
 
 });
+
+function getStartEndDates(){
+
+  
+}

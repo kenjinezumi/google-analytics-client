@@ -12,6 +12,7 @@ class AzureBlobStorage {
     this.containerClient = this.blobServiceClient.getContainerClient(containerName);
   }
 
+
   async uploadFile(fileName, fileContent) {
     const blockBlobClient = this.containerClient.getBlockBlobClient(fileName);
     await blockBlobClient.uploadData(fileContent, {

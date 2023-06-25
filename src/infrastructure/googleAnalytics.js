@@ -1,65 +1,74 @@
-// src/infrastructure/googleAnalytics.js
-
 const { google } = require("googleapis");
-const { secretClient } = require("../config/azureConfig");
+const fs = require("fs");
+const logger = require("./logger");
 
 class GoogleAnalytics {
-  constructor(keyVaultSecretName, viewId) {
-    this.keyVaultSecretName = keyVaultSecretName;
-    this.viewId = viewId;
+  constructor(keyFilePath, propertyId) {
+    this.keyFilePath = keyFilePath;
+    this.propertyId = propertyId;
     this.jwtClient = null;
-    this.analyticsReporting = null;
+    this.analyticsData = null;
   }
 
   async initialize() {
-    const keyFileUrl = await secretClient.getSecret(this.keyVaultSecretName);
-    const keyFilePath = keyFileUrl.value;
-    
-    this.jwtClient = new google.auth.JWT({
-      keyFile: keyFilePath,
-      scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
-    });
-    this.analyticsReporting = google.analyticsreporting({
-      version: "v4",
-      auth: this.jwtClient,
-    });
+    logger.info('Initializing the GA4 service');
+
+    try {
+
+      this.jwtClient = new google.auth.JWT({
+        keyFile: this.keyFilePath,
+        scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
+      });
+
+      this.analyticsData = google.analyticsdata({
+        version: "v1beta",
+        auth: this.jwtClient,
+      });
+
+      logger.info('Initialization of the GA4 service completed');
+    } catch (error) {
+      logger.error(`Error initializing the GA4 service: ${error.message}`);
+      throw error;
+    }
   }
 
   async fetchAnalyticsData(startDate, endDate) {
-    if (!this.jwtClient || !this.analyticsReporting) {
-      await this.initialize();
-    }
+    try {
+      if (!this.jwtClient || !this.analyticsData) {
+        await this.initialize();
+      }
+      logger.info('Starting to fetch analytics data');
 
-    const response = await this.analyticsReporting.reports.batchGet({
-      requestBody: {
-        reportRequests: [
+      const response = await this.analyticsData.properties.runReport({
+        property: `properties/${this.propertyId}`,
+        dateRanges: [
           {
-            viewId: this.viewId,
-            dateRanges: [
-              {
-                startDate,
-                endDate,
-              },
-            ],
-            metrics: [
-              {
-                expression: "ga:sessions",
-              },
-              {
-                expression: "ga:users",
-              },
-            ],
-            dimensions: [
-              {
-                name: "ga:date",
-              },
-            ],
+            startDate,
+            endDate,
           },
         ],
-      },
-    });
+        dimensions: [
+          {
+            name: "date",
+          },
+        ],
+        metrics: [
+          {
+            name: "sessions",
+          },
+          {
+            name: "users",
+          },
+        ],
+      });
 
-    return response.data;
+      logger.info('End of fetching analytics data');
+
+      return response.data;
+    } catch (error) {
+      logger.error(`Error fetching analytics data: ${error.message}`);
+      throw error;
+    }
   }
 }
 
