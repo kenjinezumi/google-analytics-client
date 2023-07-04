@@ -1,8 +1,6 @@
 const express = require("express");
-const { BlobServiceClient } = require("@azure/storage-blob");
 const AnalyticsService = require("./domain/analyticsService");
 const logger = require("./infrastructure/logger");
-const fs = require('fs');
 
 require('dotenv').config();
 
@@ -54,13 +52,12 @@ app.get("/fetch", async (req, res) => {
   try {
     // Initialize AnalyticsService
     const analyticsService = new AnalyticsService(
-      process.env.GOOGLE_ANALYTICS_KEY_FILE_SECRET_NAME,
       process.env.GOOGLE_ANALYTICS_PROPERTY_ID,
       process.env.AZURE_BLOB_STORAGE_ACCOUNT_NAME,
       process.env.AZURE_BLOB_STORAGE_CONTAINER_NAME
     );
 
-    // Fetch and store analytics data
+
     await analyticsService.fetchAndStoreAnalyticsData(formattedStartDate, formattedEndDate);
 
     res.send("Analytics data fetched and stored successfully.");
@@ -71,7 +68,8 @@ app.get("/fetch", async (req, res) => {
 });
 
 // Start the server
-const server = app.listen(0, () => {
+const port = process.env.PORT || 8080; 
+const server = app.listen(port, () => {
   const port = server.address().port;
   console.log(`Server is running on port ${port}`);
   console.log(`Open your web browser and navigate to http://localhost:${port} to access the server.`);

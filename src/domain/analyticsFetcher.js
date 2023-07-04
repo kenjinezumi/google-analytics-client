@@ -4,8 +4,8 @@ const GoogleAnalytics = require("../infrastructure/googleAnalytics");
 const logger = require("../infrastructure/logger");
 
 class AnalyticsFetcher {
-  constructor(keyFilePath, propertyId) {
-    this.googleAnalytics = new GoogleAnalytics(keyFilePath, propertyId);
+  constructor(propertyId) {
+    this.googleAnalytics = new GoogleAnalytics(propertyId);
   }
 
   async fetchAnalyticsData(startDate, endDate) {

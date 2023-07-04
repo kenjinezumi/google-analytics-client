@@ -10,13 +10,20 @@ class BlobUploader {
 
   async uploadAnalyticsData(fileName, analyticsData) {
     try {
-      await this.azureBlobStorage.uploadFile(fileName, JSON.stringify(analyticsData));
+      await this.azureBlobStorage.uploadFile(fileName, analyticsData);
       logger.info(`Analytics data uploaded to Azure Blob Storage: ${fileName}`);
     } catch (error) {
       logger.error(`Error uploading analytics data to Azure Blob Storage:`, error);
       throw error;
     }
   }
+  
+  
+  
+  
+  
+  
+  
 }
 
 module.exports = BlobUploader;
