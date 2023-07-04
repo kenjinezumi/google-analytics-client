@@ -5,8 +5,8 @@ const BlobUploader = require("./blobUploader");
 const logger = require("../infrastructure/logger");
 
 class AnalyticsService {
-  constructor(keyFilePath, propertyId, accountName, containerName) {
-    this.analyticsFetcher = new AnalyticsFetcher(keyFilePath, propertyId);
+  constructor(propertyId, accountName, containerName) {
+    this.analyticsFetcher = new AnalyticsFetcher(propertyId);
     this.blobUploader = new BlobUploader(accountName, containerName);
   }
 
@@ -17,7 +17,8 @@ class AnalyticsService {
       this.validateAnalyticsData(analyticsData);
 
       const fileName = `analytics_data_${startDate}_${endDate}.json`;
-    //   await this.blobUploader.uploadAnalyticsData(fileName, analyticsData);
+
+      await this.blobUploader.uploadAnalyticsData(fileName, analyticsData);
 
       logger.info(`Analytics data fetched and stored for dates ${startDate} to ${endDate}`);
     } catch (error) {
@@ -46,7 +47,7 @@ class AnalyticsService {
   validateAnalyticsData(data) {
     // Perform any additional validation on the analytics data if needed
     if (!data || !data.length) {
-      throw new Error("No analytics data received.");
+     logger.warn('No data received')
     }
   }
 }

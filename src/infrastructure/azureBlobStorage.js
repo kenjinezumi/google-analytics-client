@@ -1,7 +1,8 @@
 // src/infrastructure/azureBlobStorage.js
 
 const { BlobServiceClient } = require("@azure/storage-blob");
-const { accountName, containerName, credential, secretClient } = require("../config/azureConfig");
+const { accountName, containerName, credential} = require("../config/azureConfig");
+const logger = require("./logger");
 
 class AzureBlobStorage {
   constructor() {
@@ -12,12 +13,9 @@ class AzureBlobStorage {
     this.containerClient = this.blobServiceClient.getContainerClient(containerName);
   }
 
-
   async uploadFile(fileName, fileContent) {
     const blockBlobClient = this.containerClient.getBlockBlobClient(fileName);
-    await blockBlobClient.uploadData(fileContent, {
-      blobHTTPHeaders: { blobContentType: "application/json" },
-    });
+    await blockBlobClient.upload(fileContent, fileContent.length);
   }
 }
 
